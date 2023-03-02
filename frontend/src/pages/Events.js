@@ -1,30 +1,28 @@
+import { useEffect, useState } from 'react';
+import { useLoaderData, json } from 'react-router-dom'; //USELOADERDATA - get access to the closest loader data
 import EventsList from '../components/EventsList';
 
-const DUMMY_EVENTS =[
-    {
-      id: 'e1',
-      title: 'event1',
-      image: 'img',
-      date: '2022-01-01',
-      description: 'This is first event'
-    },
-    {
-      id: 'e2',
-      title: 'event2',
-      image: 'img',
-      date: '2023-02-01',
-      description: 'This is second event'
-    },
-    {
-      id: 'e3',
-      title: 'event3',
-      image: 'img',
-      date: '2023-11-01',
-      description: 'This is third event'
-    },
-];
-const Events = () => {
-    return <EventsList events={DUMMY_EVENTS}/>
+function EventsPage() {
+  const data = useLoaderData();
+
+  if (data.isError) {
+    return<p>{data.message}</p>
+  }
+
+  const events = data.events;
+  return <EventsList events={events} />;
 }
 
-export default Events;
+export default EventsPage;
+
+export async function loader() {
+  const response = await fetch('http://localhost:8080/events');
+  if (!response.ok) {
+    throw json(
+      {message: 'Could not fetch events.'},
+      {status: 500},
+    );
+  } else {
+    return response;
+  }
+}

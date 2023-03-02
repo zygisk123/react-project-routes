@@ -22,12 +22,14 @@
 
 import {createBrowserRouter, RouterProvider} from 'react-router-dom';
 import Home from './pages/Home';
-import Events from './pages/Events';
-import EventDetail from './pages/EventDetail';
-import NewEvent from './pages/NewEvent';
+import Events, {loader as eventsLoader} from './pages/Events';
+import EventDetail, {loader as eventDetailLoader} from './pages/EventDetail';
+import NewEvent, {action as newEventAction} from './pages/NewEvent';
 import EditEvent from './pages/EditEvent';
 import RootLayout from './pages/Root';
 import EventsRootLayout from './pages/EventsRoot';
+import { useState } from 'react';
+
 const router = createBrowserRouter([
   {
     path: '/',
@@ -36,15 +38,38 @@ const router = createBrowserRouter([
     children: [
       {index: true, element: <Home/>},
       {path: 'events', element: <EventsRootLayout/>, children: [
-        {index: true, element: <Events/>},
-        {path: ':eventID', element: <EventDetail/>}, // : shows interactive links part
-        {path: 'new', element: <NewEvent/>},
-        {path: ':eventID/edit', element: <EditEvent/>},
+        {
+          index: true, 
+          element: <Events/>,
+          loader: eventsLoader,
+        },
+        {
+          path: ':eventID',
+          id: 'event-detail',
+          loader: eventDetailLoader,
+          children: [
+            {
+              index: true, 
+              element: <EventDetail/>,
+            },
+            {
+              path: 'edit', 
+              element: <EditEvent/>
+            },
+
+          ]
+        },
+        {
+          path: 'new', 
+          element: <NewEvent/>,
+          action: newEventAction,
+        }
       ]},
 
     ]
   }
 ]);
+
 function App() {
   return <RouterProvider router={router}/>;
 }
